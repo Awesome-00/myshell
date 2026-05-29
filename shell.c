@@ -42,7 +42,19 @@ int main() {
             args[++i] = strtok(NULL, " ");
         }
 
-        if (args[0] != NULL) execute(args);
+        if (args[0] != NULL) {
+    if (strcmp(args[0], "cd") == 0) {
+        if (args[1] == NULL) {
+            chdir(getenv("HOME"));
+        } else {
+            if (chdir(args[1]) != 0) {
+                perror("cd");
+            }
+        }
+    } else {
+        execute(args);
+    }
+};
     }
 
     return 0;
