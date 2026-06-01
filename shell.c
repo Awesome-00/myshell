@@ -3,6 +3,8 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/wait.h>
+#include <readline/readline.h>
+#include <readline/history.h>
 
 #define MAX_INPUT 1024
 #define MAX_ARGS 64
@@ -30,17 +32,26 @@ int main()
 {
     char input[MAX_INPUT];
     char *args[MAX_ARGS];
+    char history[100][MAX_INPUT];
+    int history_count = 0;
 
     while (1)
     {
-        printf("myshell> ");
-        fflush(stdout);
-
-        if (!fgets(input, MAX_INPUT, stdin))
+        char cwd[1024];
+        getcwd(cwd, sizeof(cwd));
+        char prompt[2048];
+        snprintf(prompt, sizeof(prompt), "%s> ", cwd);
+        char *line = readline(prompt);
+        if (!line)
             break;
+        strncpy(input, line, MAX_INPUT);
+        add_history(line);
+        free(line);
         if (strchr(input, '|') != NULL)
         {
             input[strcspn(input, "\n")] = 0; // remove newline
+            strcpy(history[history_count], input);
+            history_count++;
 
             char *pipe_pos = strchr(input, '|');
             *pipe_pos = '\0';
