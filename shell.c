@@ -1,3 +1,5 @@
+// myshell - a simple Unix shell written in C
+// supports command execution, cd builtin, pipes, and command history
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -40,6 +42,8 @@ int main()
         char cwd[1024];
         getcwd(cwd, sizeof(cwd));
         char prompt[2048];
+
+        // prints the current path 
         snprintf(prompt, sizeof(prompt), "%s> ", cwd);
         char *line = readline(prompt);
         if (!line)
@@ -47,6 +51,8 @@ int main()
         strncpy(input, line, MAX_INPUT);
         add_history(line);
         free(line);
+
+        // Pipes
         if (strchr(input, '|') != NULL)
         {
             input[strcspn(input, "\n")] = 0; // remove newline
@@ -60,7 +66,8 @@ int main()
 
             int pipefd[2];
             pipe(pipefd);
-            // first child - runs left command (ls)
+
+            // first child - runs left command 
             pid_t pid1 = fork();
             if (pid1 == 0)
             {
@@ -78,7 +85,7 @@ int main()
                 exit(1);
             }
 
-            // second child - runs right command (grep)
+            // second child - runs right command 
             pid_t pid2 = fork();
             if (pid2 == 0)
             {
